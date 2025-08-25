@@ -25,30 +25,38 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    const imageWidth = 6812;
-    const imageHeight = 4611;
-
-    const bounds = [[0, 0], [imageHeight, imageWidth]];
-
     const map = L.map('map', {
       crs: L.CRS.Simple,
-      minZoom: -5,       // na razie dowolny, ustawimy niżej
+      minZoom: -5,
       maxZoom: 5,
-      maxBounds: bounds,
       maxBoundsViscosity: 1.0
     });
 
-    L.imageOverlay('Arkadia.jpg', bounds).addTo(map);
+    // Wczytujemy obraz i pobieramy jego faktyczne wymiary
+    const img = new Image();
+    img.src = "Arkadia.jpg";
+    img.onload = () => {
+      const imageWidth = img.width;
+      const imageHeight = img.height;
 
-    // Dopasowanie widoku
-    map.fitBounds(bounds);
+      const bounds = [[0, 0], [imageHeight, imageWidth]];
 
-    // Pobieramy zoom startowy i blokujemy dalsze oddalanie
-    const startZoom = map.getZoom();
-    map.setMinZoom(startZoom);
+      L.imageOverlay(img.src, bounds).addTo(map);
 
-    // Zwiększamy początkowy zoom o 1 (lub mniej, jeśli był max)
-    map.setZoom(Math.min(startZoom + 1, map.getMaxZoom()));
+      map.fitBounds(bounds);
+
+      // Pobieramy zoom startowy i blokujemy dalsze oddalanie
+      const startZoom = map.getZoom();
+      map.setMinZoom(startZoom);
+
+      // Opcjonalnie przybliżamy o 1 (jeśli nie przekroczy maxZoom)
+      map.setZoom(Math.min(startZoom + 1, map.getMaxZoom()));
+
+      // Ustawiamy ograniczenie ruchu do granic obrazka
+      map.setMaxBounds(bounds);
+    };
   </script>
 </body>
 </html>
+
+
