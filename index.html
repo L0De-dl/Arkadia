@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <title>Arkadia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const imageWidth = 6812;
+    const imageHeight = 4611;
+
+    const bounds = [[0, 0], [imageHeight, imageWidth]];
+
+    const map = L.map('map', {
+      crs: L.CRS.Simple,
+      minZoom: -5,       // na razie dowolny, ustawimy niżej
+      maxZoom: 5,
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0
+    });
+
+    L.imageOverlay('Arkadia.jpg', bounds).addTo(map);
+
+    // Dopasowanie widoku
+    map.fitBounds(bounds);
+
+    // Pobieramy zoom startowy i blokujemy dalsze oddalanie
+    const startZoom = map.getZoom();
+    map.setMinZoom(startZoom);
+
+    // Zwiększamy początkowy zoom o 1 (lub mniej, jeśli był max)
+    map.setZoom(Math.min(startZoom + 1, map.getMaxZoom()));
+  </script>
+</body>
+</html>
