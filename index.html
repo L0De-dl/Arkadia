@@ -17,10 +17,7 @@
       align-items: center;
     }
     #map {
-      width: 80vw;
-      height: 80vh;
-      border: 2px solid #333; /* opcjonalnie ramka żeby było widać */
-      border-radius: 10px;    /* opcjonalnie zaokrąglenie rogów */
+      border: 2px solid #333; /* zwykła ramka */
     }
   </style>
 </head>
@@ -30,35 +27,39 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    const map = L.map('map', {
-      crs: L.CRS.Simple,
-      minZoom: -5,
-      maxZoom: 5,
-      maxBoundsViscosity: 1.0
-    });
-
     const img = new Image();
-    img.src = "Arkadia.png";
+    img.src = "Arkadia.jpg";
     img.onload = () => {
       const imageWidth = img.width;
       const imageHeight = img.height;
 
-      const bounds = [[0, 0], [imageHeight, imageWidth]];
+      // ustawiamy wielkość mapy na wymiary obrazka
+      const mapDiv = document.getElementById('map');
+      mapDiv.style.width = imageWidth + "px";
+      mapDiv.style.height = imageHeight + "px";
 
+      // inicjalizujemy mapę dopiero teraz, jak div ma wymiar
+      const map = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -5,
+        maxZoom: 5,
+        maxBoundsViscosity: 1.0
+      });
+
+      const bounds = [[0, 0], [imageHeight, imageWidth]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
       map.fitBounds(bounds);
 
       const startZoom = map.getZoom();
       map.setMinZoom(startZoom);
-
-      map.setZoom(Math.min(startZoom + 1, map.getMaxZoom()));
-
       map.setMaxBounds(bounds);
     };
   </script>
 </body>
 </html>
+
+
 
 
 
