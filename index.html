@@ -9,53 +9,67 @@
 
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
       height: 100%;
+      margin: 0;
+    }
+    /* Wrapper zapewnia wyśrodkowanie, ale pozwala przewijać
+       gdy obraz/mapa są większe niż okno przeglądarki */
+    .page {
+      min-height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow: auto; /* ważne: pokaż scroll gdy potrzeba */
+      background: #f7f7f7;
     }
     #map {
-      width: 80vw;
-      height: 80vh;
-      border: 2px solid #333; /* opcjonalnie ramka żeby było widać */
-      border-radius: 10px;    /* opcjonalnie zaokrąglenie rogów */
+      border: 2px solid #333; /* ostre krawędzie, bez zaokrągleń */
+      /* width/height ustawimy dynamicznie po wczytaniu obrazu */
     }
   </style>
 </head>
 <body>
-  <div id="map"></div>
+  <div class="page">
+    <div id="map" aria-label="Mapa Arkadii"></div>
+  </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
-    const map = L.map('map', {
-      crs: L.CRS.Simple,
-      minZoom: -5,
-      maxZoom: 5,
-      maxBoundsViscosity: 1.0
-    });
+    (function () {
+      const img = new Image();
+      img.src = "Arkadia.jpg"; // Upewnij się, że plik jest w tym samym katalogu co ten HTML
 
-    const img = new Image();
-    img.src = "Arkadia.jpg";
-    img.onload = () => {
-      const imageWidth = img.width;
-      const imageHeight = img.height;
+      img.onload = function () {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
 
-      const bounds = [[0, 0], [imageHeight, imageWidth]];
+        // Nadajemy kontenerowi mapy dokładne wymiary obrazu (1:1 w pikselach)
+        const mapEl = document.getElementById("map");
+        mapEl.style.width = w + "px";
+        mapEl.style.height = h + "px";
 
-      L.imageOverlay(img.src, bounds).addTo(map);
+        // Dopiero teraz inicjalizujemy Leaflet — po ustawieniu rozmiaru kontenera
+        const map = L.map(mapEl, {
+          crs: L.CRS.Simple,
+          zoomControl: true,
+          maxBoundsViscosity: 1.0
+        });
 
-      map.fitBounds(bounds);
+        const bounds = [[0, 0], [h, w]]; // (y,x) = (wysokość, szerokość)
+        L.imageOverlay(img.src, bounds).addTo(map);
 
-      const startZoom = map.getZoom();
-      map.setMinZoom(startZoom);
+        map.fitBounds(bounds, { padding: [0, 0] });
+        map.setMinZoom(map.getZoom()); // zablokuj dalsze oddalanie niż pełny obraz
+        map.setMaxBounds(bounds);      // nie pozwalaj wyjechać poza obraz
+      };
 
-      map.setZoom(Math.min(startZoom + 1, map.getMaxZoom()));
-
-      map.setMaxBounds(bounds);
-    };
+      img.onerror = function () {
+        console.error("Nie można wczytać obrazu Arkadia.jpg. Sprawdź nazwę pliku i ścieżkę.");
+      };
+    })();
   </script>
 </body>
 </html>
