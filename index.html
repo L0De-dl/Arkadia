@@ -18,6 +18,7 @@
     }
     #map {
       border: 2px solid #333; /* ramka z prostymi rogami */
+      box-sizing: content-box; /* upewnia się, że border nie zmienia rozmiaru wewnętrznego */
     }
   </style>
 </head>
@@ -35,7 +36,7 @@
       const h = img.naturalHeight;
       const aspect = w / h;
 
-      // maksymalne dostępne wymiary (80% ekranu)
+      // maksymalne dostępne wymiary (95% ekranu)
       const maxW = window.innerWidth * 0.95;
       const maxH = window.innerHeight * 0.95;
 
@@ -62,13 +63,14 @@
       const bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
+      // Dopasowanie dokładnie do granic obrazu, bez paddingu
       map.fitBounds(bounds, { padding: [0, 0] });
 
-      // Zablokowanie możliwości wyjścia poza obraz
-      map.setMinZoom(map.getZoom());
+      // Zablokowanie przesuwania poza obraz i skalowania
       map.setMaxBounds(bounds);
+      map.setMinZoom(map.getZoom());
+      map.setZoom(map.getZoom());
     };
   </script>
 </body>
 </html>
-
