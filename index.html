@@ -17,6 +17,9 @@
       background: #f7f7f7;
     }
     #map {
+      /* Nowe stałe wymiary - zajmuje całe pole rodzica */
+      width: 95vw;
+      height: 95vh;
       border: 2px solid #333; /* ramka z prostymi rogami */
     }
   </style>
@@ -31,32 +34,16 @@
     img.src = "Arkadia.jpg";
 
     img.onload = function () {
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      const aspect = w / h;
-
-      // maksymalne dostępne wymiary (80% ekranu)
-      const maxW = window.innerWidth * 0.95;
-      const maxH = window.innerHeight * 0.95;
-
-      let mapW = maxW;
-      let mapH = mapW / aspect;
-
-      if (mapH > maxH) {
-        mapH = maxH;
-        mapW = mapH * aspect;
-      }
-
       const mapDiv = document.getElementById("map");
-      mapDiv.style.width = mapW + "px";
-      mapDiv.style.height = mapH + "px";
+      const w = mapDiv.clientWidth;
+      const h = mapDiv.clientHeight;
 
       const map = L.map("map", {
         crs: L.CRS.Simple,
         zoomControl: true,
         minZoom: -5,
         maxZoom: 5,
-        maxBoundsViscosity: 1.0
+        maxBoundsViscosity: 1.0,
       });
 
       const bounds = [[0, 0], [h, w]];
@@ -71,4 +58,3 @@
   </script>
 </body>
 </html>
-
