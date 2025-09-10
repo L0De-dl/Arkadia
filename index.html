@@ -62,7 +62,7 @@
       const bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
-     
+      map.fitBounds(bounds);
 
       // Zablokowanie możliwości wyjścia poza obraz
       map.setMinZoom(map.getZoom());
@@ -71,5 +71,6 @@
   </script>
 </body>
 </html>
+
 
 
