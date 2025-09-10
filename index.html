@@ -17,8 +17,6 @@
       background: #f7f7f7;
     }
     #map {
-      width: 80vw;   /* 80% szerokości ekranu */
-      height: 80vh;  /* 80% wysokości ekranu */
       border: 2px solid #333; /* ramka z prostymi rogami */
     }
   </style>
@@ -35,6 +33,23 @@
     img.onload = function () {
       const w = img.naturalWidth;
       const h = img.naturalHeight;
+      const aspect = w / h;
+
+      // maksymalne dostępne wymiary (80% ekranu)
+      const maxW = window.innerWidth * 0.8;
+      const maxH = window.innerHeight * 0.8;
+
+      let mapW = maxW;
+      let mapH = mapW / aspect;
+
+      if (mapH > maxH) {
+        mapH = maxH;
+        mapW = mapH * aspect;
+      }
+
+      const mapDiv = document.getElementById("map");
+      mapDiv.style.width = mapW + "px";
+      mapDiv.style.height = mapH + "px";
 
       const map = L.map("map", {
         crs: L.CRS.Simple,
@@ -47,10 +62,9 @@
       const bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
-      // Dopasuj widok do całego obrazu
       map.fitBounds(bounds);
 
-      // Zablokuj możliwość oddalania bardziej niż pełny obraz
+      // Zablokowanie możliwości wyjścia poza obraz
       map.setMinZoom(map.getZoom());
       map.setMaxBounds(bounds);
     };
