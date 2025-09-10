@@ -17,7 +17,7 @@
       background: #f7f7f7;
     }
     #map {
-      border: 2px solid #333; /* ramka z prostymi rogami */
+      border: 2px solid #333;
     }
   </style>
 </head>
@@ -35,23 +35,33 @@
       const h = img.naturalHeight;
       const aspect = w / h;
 
-      // maksymalne dostępne wymiary (80% ekranu)
-      const maxW = window.innerWidth * 0.95;
-      const maxH = window.innerHeight * 0.95;
+      const mapDiv = document.getElementById("map");
 
-      let mapW = maxW;
-      let mapH = mapW / aspect;
+      // Funkcja dopasowująca rozmiar mapy do okna
+      function resizeMap() {
+        const maxW = window.innerWidth * 0.95; // 95% szerokości ekranu
+        const maxH = window.innerHeight * 0.95; // 95% wysokości ekranu
 
-      if (mapH > maxH) {
-        mapH = maxH;
-        mapW = mapH * aspect;
+        let mapW = maxW;
+        let mapH = mapW / aspect;
+
+        if (mapH > maxH) {
+          mapH = maxH;
+          mapW = mapH * aspect;
+        }
+
+        mapDiv.style.width = mapW + "px";
+        mapDiv.style.height = mapH + "px";
+
+        if (window.map) {
+          map.invalidateSize();   // aktualizacja Leaflet
+          map.fitBounds(bounds);  // dopasowanie obrazu
+          map.setMinZoom(map.getZoom()); // blokada oddalania
+        }
       }
 
-      const mapDiv = document.getElementById("map");
-      mapDiv.style.width = mapW + "px";
-      mapDiv.style.height = mapH + "px";
-
-      const map = L.map("map", {
+      // Inicjalizacja mapy
+      window.map = L.map("map", {
         crs: L.CRS.Simple,
         zoomControl: true,
         minZoom: -5,
@@ -59,18 +69,15 @@
         maxBoundsViscosity: 1.0
       });
 
-      const bounds = [[0, 0], [h, w]];
+      window.bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
-      map.fitBounds(bounds);
-
-      // Zablokowanie możliwości wyjścia poza obraz
-      map.setMinZoom(map.getZoom());
+      resizeMap(); // ustawienie rozmiaru i widoku na start
       map.setMaxBounds(bounds);
+
+      // reagowanie na zmianę rozmiaru okna
+      window.addEventListener("resize", resizeMap);
     };
   </script>
 </body>
 </html>
-
-
-
