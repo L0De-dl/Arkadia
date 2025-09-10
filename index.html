@@ -17,10 +17,9 @@
       background: #f7f7f7;
     }
     #map {
-      /* Nowe stałe wymiary - zajmuje całe pole rodzica */
       width: 95vw;
       height: 95vh;
-      border: 2px solid #333; /* ramka z prostymi rogami */
+      border: 2px solid #333;
     }
   </style>
 </head>
@@ -35,9 +34,26 @@
 
     img.onload = function () {
       const mapDiv = document.getElementById("map");
-      const w = mapDiv.clientWidth;
-      const h = mapDiv.clientHeight;
+      const mapW = mapDiv.clientWidth;
+      const mapH = mapDiv.clientHeight;
+      const aspect = img.naturalWidth / img.naturalHeight;
 
+      let imageBounds;
+      
+      // Obliczanie nowych wymiarów obrazu, aby zachować proporcje i wypełnić kontener
+      // Tryb "contain" - obraz jest dopasowany do wewnątrz kontenera bez zniekształceń.
+      if (mapW / mapH > aspect) {
+        // Kontener jest szerszy niż obraz, więc ograniczamy szerokość obrazu
+        const newWidth = mapH * aspect;
+        const offset = (mapW - newWidth) / 2;
+        imageBounds = [[0, -offset], [mapH, mapW - offset]];
+      } else {
+        // Kontener jest wyższy niż obraz, więc ograniczamy wysokość obrazu
+        const newHeight = mapW / aspect;
+        const offset = (mapH - newHeight) / 2;
+        imageBounds = [[-offset, 0], [mapH - offset, mapW]];
+      }
+      
       const map = L.map("map", {
         crs: L.CRS.Simple,
         zoomControl: true,
@@ -46,14 +62,14 @@
         maxBoundsViscosity: 1.0,
       });
 
-      const bounds = [[0, 0], [h, w]];
-      L.imageOverlay(img.src, bounds).addTo(map);
+      L.imageOverlay(img.src, imageBounds).addTo(map);
 
-      map.fitBounds(bounds);
+      map.fitBounds(imageBounds);
 
-      // Zablokowanie możliwości wyjścia poza obraz
+      // Ustawienie minimalnego i maksymalnego powiększenia,
+      // aby użytkownik nie mógł oddalić mapy poza granice obrazu
       map.setMinZoom(map.getZoom());
-      map.setMaxBounds(bounds);
+      map.setMaxBounds(imageBounds);
     };
   </script>
 </body>
