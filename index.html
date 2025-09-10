@@ -17,7 +17,7 @@
       background: #f7f7f7;
     }
     #map {
-      border: 2px solid #333;
+      border: 2px solid #333; /* ramka z prostymi rogami */
     }
   </style>
 </head>
@@ -35,9 +35,22 @@
       const h = img.naturalHeight;
       const aspect = w / h;
 
-      const mapDiv = document.getElementById("map");
+      // maksymalne dostępne wymiary (80% ekranu)
+      const maxW = window.innerWidth * 0.8;
+      const maxH = window.innerHeight * 0.8;
 
-      // Inicjalizacja mapy
+      let mapW = maxW;
+      let mapH = mapW / aspect;
+
+      if (mapH > maxH) {
+        mapH = maxH;
+        mapW = mapH * aspect;
+      }
+
+      const mapDiv = document.getElementById("map");
+      mapDiv.style.width = mapW + "px";
+      mapDiv.style.height = mapH + "px";
+
       const map = L.map("map", {
         crs: L.CRS.Simple,
         zoomControl: true,
@@ -48,36 +61,12 @@
 
       const bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
+
+      map.fitBounds(bounds);
+
+      // Zablokowanie możliwości wyjścia poza obraz
+      map.setMinZoom(map.getZoom());
       map.setMaxBounds(bounds);
-
-      // Funkcja dopasowująca kontener mapy i zoom
-      function resizeMap() {
-        const maxW = window.innerWidth * 0.95;
-        const maxH = window.innerHeight * 0.95;
-
-        let mapW = maxW;
-        let mapH = mapW / aspect;
-
-        if (mapH > maxH) {
-          mapH = maxH;
-          mapW = mapH * aspect;
-        }
-
-        mapDiv.style.width = mapW + "px";
-        mapDiv.style.height = mapH + "px";
-
-        map.invalidateSize(); // aktualizacja Leaflet
-
-        // dopasowanie zoomu tak, żeby obraz wypełnił kontener
-        const zoom = map.getBoundsZoom(bounds);
-        map.setZoom(zoom);
-      }
-
-      // początkowe ustawienie
-      resizeMap();
-
-      // reagowanie na zmianę rozmiaru okna
-      window.addEventListener("resize", resizeMap);
     };
   </script>
 </body>
