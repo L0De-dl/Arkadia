@@ -11,16 +11,10 @@
     html, body {
       height: 100%;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #f7f7f7;
     }
     #map {
-      width: 100vw; /* 100% szerokości okna */
-      height: 100vh; /* 100% wysokości okna */
-      border: 2px solid #333; /* ramka z prostymi rogami */
-      box-sizing: border-box; /* upewnia się, że border nie zmienia rozmiaru wewnętrznego */
+      width: 100vw;
+      height: 100vh;
     }
   </style>
 </head>
@@ -36,44 +30,21 @@
     img.onload = function () {
       const w = img.naturalWidth;
       const h = img.naturalHeight;
-      const aspect = w / h;
 
-      // Maksymalne dostępne wymiary (100% ekranu)
-      const maxW = window.innerWidth;
-      const maxH = window.innerHeight;
-
-      let mapW = maxW;
-      let mapH = mapW / aspect;
-
-      if (mapH > maxH) {
-        mapH = maxH;
-        mapW = mapH * aspect;
-      }
-
-      const mapDiv = document.getElementById("map");
-      mapDiv.style.width = mapW + "px";
-      mapDiv.style.height = mapH + "px";
+      const bounds = [[0, 0], [h, w]];
 
       const map = L.map("map", {
         crs: L.CRS.Simple,
-        zoomControl: true,
         minZoom: -5,
         maxZoom: 5,
+        maxBounds: bounds,
         maxBoundsViscosity: 1.0
       });
 
-      const bounds = [[0, 0], [h, w]];
       L.imageOverlay(img.src, bounds).addTo(map);
 
-      // Dopasowanie dokładnie do granic obrazu, bez paddingu
+      // Dopasowanie mapy do całego pola, bez paddingu
       map.fitBounds(bounds, { padding: [0, 0] });
-
-      // Zablokowanie przesuwania poza obraz i skalowania
-      map.setMaxBounds(bounds);
-
-      // Ustawienie początkowego poziomu zoomu, aby mapa wypełniała ekran
-      const zoomLevel = map.getBoundsZoom(bounds);
-      map.setZoom(zoomLevel); // Dopasowanie zoomu, aby obraz wypełniał cały obszar
     };
   </script>
 </body>
