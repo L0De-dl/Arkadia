@@ -70,8 +70,10 @@
 
       // Zablokowanie przesuwania poza obraz i skalowania
       map.setMaxBounds(bounds);
-      map.setMinZoom(map.getZoom());
-      map.setZoom(map.getZoom());
+
+      // Ustawienie początkowego poziomu zoomu, aby mapa wypełniała ekran
+      const zoomLevel = map.getBoundsZoom(bounds);
+      map.setZoom(zoomLevel); // Dopasowanie zoomu, aby obraz wypełniał cały obszar
     };
   </script>
 </body>
