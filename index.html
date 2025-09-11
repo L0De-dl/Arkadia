@@ -38,16 +38,18 @@
         minZoom: -5,
         maxZoom: 5,
         maxBounds: bounds,
-        maxBoundsViscosity: 1.0
+        maxBoundsViscosity: 1.0,
+        zoomSnap: 0.1 // pozwala na ułamkowe wartości zoomu
       });
 
       L.imageOverlay(img.src, bounds).addTo(map);
 
-      // Dopasowanie mapy do całego pola, bez paddingu
+      // Dopasowanie mapy do całego pola
       map.fitBounds(bounds);
-      map.setZoom(map.getZoom() + 1); // zwiększa zoom o 1
+
+      // Zwiększenie początkowego zoomu np. o 0.5
+      map.setZoom(map.getZoom() + 0.5);
     };
   </script>
 </body>
 </html>
-
