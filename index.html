@@ -17,8 +17,10 @@
       background: #f7f7f7;
     }
     #map {
+      width: 100vw; /* 100% szerokości okna */
+      height: 100vh; /* 100% wysokości okna */
       border: 2px solid #333; /* ramka z prostymi rogami */
-      box-sizing: content-box; /* upewnia się, że border nie zmienia rozmiaru wewnętrznego */
+      box-sizing: border-box; /* upewnia się, że border nie zmienia rozmiaru wewnętrznego */
     }
   </style>
 </head>
@@ -36,9 +38,9 @@
       const h = img.naturalHeight;
       const aspect = w / h;
 
-      // maksymalne dostępne wymiary (95% ekranu)
-      const maxW = window.innerWidth * 0.95;
-      const maxH = window.innerHeight * 0.95;
+      // Maksymalne dostępne wymiary (100% ekranu)
+      const maxW = window.innerWidth;
+      const maxH = window.innerHeight;
 
       let mapW = maxW;
       let mapH = mapW / aspect;
