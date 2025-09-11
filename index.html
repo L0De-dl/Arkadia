@@ -44,8 +44,10 @@
       L.imageOverlay(img.src, bounds).addTo(map);
 
       // Dopasowanie mapy do całego pola, bez paddingu
-      map.fitBounds(bounds, { padding: [0, 0] });
+      map.fitBounds(bounds);
+      map.setZoom(map.getZoom() + 1); // zwiększa zoom o 1
     };
   </script>
 </body>
 </html>
+
