@@ -32,7 +32,7 @@
 
     let map;
     let currentImageOverlay;
-    let zoomCount = 0;
+    let initialZoomLevel;
     let isZoomedIn = false;
 
     img.onload = function () {
@@ -53,33 +53,30 @@
       currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
 
       map.fitBounds(bounds);
-      map.setZoom(map.getZoom() + 0.1);
+      initialZoomLevel = map.getZoom();
 
       map.on('zoomend', function () {
         const currentZoom = map.getZoom();
 
-        // Logika zmiany na drugi obraz (powiększenie)
-        // Upewniamy się, że to faktyczne powiększenie, a nie startowe ustawienie
-        // oraz, że obraz nie był jeszcze zmieniony
-        if (currentZoom > -4.9 && currentZoom > map.getZoom() && !isZoomedIn) {
-            zoomCount++;
-        }
-        
-        if (zoomCount >= 2 && !isZoomedIn) {
+        // Jeśli obraz nie był jeszcze zmieniony i poziom powiększenia przekroczył pewien próg
+        // Próg ustawiłem na 1, ale możesz go dostosować w zależności od preferencji.
+        // Opcja 1: zmiana na podstawie bezwzględnego poziomu zoomu
+        // if (currentZoom > initialZoomLevel + 0.5 && !isZoomedIn) {
+
+        // Opcja 2 (bardziej uniwersalna): zmiana po dwóch kliknięciach powiększenia
+        // Działa to po dwukrotnym kliknięciu na mapę, co zwiększa zoom o 0.2.
+        if (currentZoom >= initialZoomLevel + 0.2 && !isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
           isZoomedIn = true;
           console.log('Obraz został zmieniony na powiększony.');
         }
 
-        // Logika powrotu do pierwszego obrazu (oddalenie)
-        // Sprawdzamy, czy poziom zoomu jest bliski lub niższy od początkowego
-        // i czy obraz był wcześniej zmieniony
-        if (currentZoom <= map.getBoundsZoom(bounds) && isZoomedIn) {
+        // Jeśli oddalono mapę do początkowego poziomu lub niżej
+        if (currentZoom <= initialZoomLevel && isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
           isZoomedIn = false;
-          zoomCount = 0;
           console.log('Obraz został zmieniony z powrotem na początkowy.');
         }
       });
