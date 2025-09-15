@@ -27,30 +27,51 @@
     const img = new Image();
     img.src = "Arkadia.jpg";
 
+    let map;
+    let currentImage;
+    let zoomCount = 0;
+
     img.onload = function () {
       const w = img.naturalWidth;
       const h = img.naturalHeight;
 
       const bounds = [[0, 0], [h, w]];
 
-      const map = L.map("map", {
+      map = L.map("map", {
         crs: L.CRS.Simple,
         minZoom: -5,
         maxZoom: 5,
         maxBounds: bounds,
         maxBoundsViscosity: 1.0,
-        zoomSnap: 0.1 // pozwala na ułamkowe wartości zoomu
+        zoomSnap: 0.1
       });
 
-      L.imageOverlay(img.src, bounds).addTo(map);
+      currentImage = L.imageOverlay(img.src, bounds).addTo(map);
 
-      // Dopasowanie mapy do całego pola
       map.fitBounds(bounds);
-
-      // Zwiększenie początkowego zoomu np. o 0.5
       map.setZoom(map.getZoom() + 0.1);
+
+      map.on('zoomend', function () {
+        // Zwiększamy licznik tylko, gdy powiększenie faktycznie nastąpiło
+        if (map.getZoom() > -4.9) {
+          zoomCount++;
+        }
+
+        if (zoomCount >= 2) {
+          map.removeLayer(currentImage);
+
+          // Pamiętaj, aby mieć plik 'Arkadia-zoom.jpg' w tym samym katalogu
+          const newImageSrc = "Arkadia2.jpg";
+          const newImageBounds = [[0, 0], [h, w]];
+          currentImage = L.imageOverlay(newImageSrc, newImageBounds).addTo(map);
+
+          console.log('Obraz został zmieniony.');
+          
+          // Resetujemy licznik, aby zmiana mogła nastąpić ponownie
+          zoomCount = 0;
+        }
+      });
     };
   </script>
 </body>
 </html>
-
