@@ -27,9 +27,13 @@
     const img = new Image();
     img.src = "Arkadia.jpg";
 
+    const imgZoomed = new Image();
+    imgZoomed.src = "Arkadia2.jpg";
+
     let map;
-    let currentImage;
+    let currentImageOverlay;
     let zoomCount = 0;
+    let isZoomedIn = false;
 
     img.onload = function () {
       const w = img.naturalWidth;
@@ -46,29 +50,37 @@
         zoomSnap: 0.1
       });
 
-      currentImage = L.imageOverlay(img.src, bounds).addTo(map);
+      currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
 
       map.fitBounds(bounds);
       map.setZoom(map.getZoom() + 0.1);
 
       map.on('zoomend', function () {
-        // Zwiększamy licznik tylko, gdy powiększenie faktycznie nastąpiło
-        if (map.getZoom() > -4.9) {
-          zoomCount++;
+        const currentZoom = map.getZoom();
+
+        // Logika zmiany na drugi obraz (powiększenie)
+        // Upewniamy się, że to faktyczne powiększenie, a nie startowe ustawienie
+        // oraz, że obraz nie był jeszcze zmieniony
+        if (currentZoom > -4.9 && currentZoom > map.getZoom() && !isZoomedIn) {
+            zoomCount++;
+        }
+        
+        if (zoomCount >= 2 && !isZoomedIn) {
+          map.removeLayer(currentImageOverlay);
+          currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
+          isZoomedIn = true;
+          console.log('Obraz został zmieniony na powiększony.');
         }
 
-        if (zoomCount >= 2) {
-          map.removeLayer(currentImage);
-
-          // Pamiętaj, aby mieć plik 'Arkadia-zoom.jpg' w tym samym katalogu
-          const newImageSrc = "Arkadia2.jpg";
-          const newImageBounds = [[0, 0], [h, w]];
-          currentImage = L.imageOverlay(newImageSrc, newImageBounds).addTo(map);
-
-          console.log('Obraz został zmieniony.');
-          
-          // Resetujemy licznik, aby zmiana mogła nastąpić ponownie
+        // Logika powrotu do pierwszego obrazu (oddalenie)
+        // Sprawdzamy, czy poziom zoomu jest bliski lub niższy od początkowego
+        // i czy obraz był wcześniej zmieniony
+        if (currentZoom <= map.getBoundsZoom(bounds) && isZoomedIn) {
+          map.removeLayer(currentImageOverlay);
+          currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
+          isZoomedIn = false;
           zoomCount = 0;
+          console.log('Obraz został zmieniony z powrotem na początkowy.');
         }
       });
     };
