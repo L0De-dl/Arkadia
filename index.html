@@ -43,7 +43,7 @@
 
       map = L.map("map", {
         crs: L.CRS.Simple,
-        minZoom: -5,
+        // Usunięto minZoom: -5, aby ustawić go później dynamicznie
         maxZoom: 5,
         maxBounds: bounds,
         maxBoundsViscosity: 1.0,
@@ -55,16 +55,17 @@
       map.fitBounds(bounds);
       initialZoomLevel = map.getZoom();
 
+      // **NOWE WIERZE**
+      // Ustawia minimalny zoom na poziom początkowy, blokując oddalanie
+      map.setMinZoom(initialZoomLevel);
+      map.setZoom(initialZoomLevel); 
+      // **KONIEC NOWYCH WIERSZY**
+
       map.on('zoomend', function () {
         const currentZoom = map.getZoom();
 
-        // Jeśli obraz nie był jeszcze zmieniony i poziom powiększenia przekroczył pewien próg
-        // Próg ustawiłem na 1, ale możesz go dostosować w zależności od preferencji.
-        // Opcja 1: zmiana na podstawie bezwzględnego poziomu zoomu
-        // if (currentZoom > initialZoomLevel + 0.5 && !isZoomedIn) {
-
-        // Opcja 2 (bardziej uniwersalna): zmiana po dwóch kliknięciach powiększenia
-        // Działa to po dwukrotnym kliknięciu na mapę, co zwiększa zoom o 0.2.
+        // Warunek zmiany obrazu na powiększony (opóźniony do 1.0)
+        // Obraz zmieni się dopiero, gdy zoom będzie o 1.0 wyższy niż początkowy.
         if (currentZoom >= initialZoomLevel + 0.7 && !isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
@@ -72,7 +73,7 @@
           console.log('Obraz został zmieniony na powiększony.');
         }
 
-        // Jeśli oddalono mapę do początkowego poziomu lub niżej
+        // Warunek powrotu do początkowego obrazu
         if (currentZoom <= initialZoomLevel && isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
@@ -84,6 +85,7 @@
   </script>
 </body>
 </html>
+
 
 
 
