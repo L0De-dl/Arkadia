@@ -65,7 +65,7 @@
 
         // Opcja 2 (bardziej uniwersalna): zmiana po dwóch kliknięciach powiększenia
         // Działa to po dwukrotnym kliknięciu na mapę, co zwiększa zoom o 0.2.
-        if (currentZoom >= initialZoomLevel + 0.2 && !isZoomedIn) {
+        if (currentZoom >= initialZoomLevel + 2 && !isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
           isZoomedIn = true;
@@ -84,3 +84,4 @@
   </script>
 </body>
 </html>
+
