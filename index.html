@@ -23,7 +23,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
+<script>
     const img = new Image();
     img.src = "Arkadia.jpg";
 
@@ -43,7 +43,7 @@
 
       map = L.map("map", {
         crs: L.CRS.Simple,
-        // Usunięto minZoom: -5, aby ustawić go później dynamicznie
+        // Usuwamy stąd minZoom: -5, bo ustawimy go później
         maxZoom: 5,
         maxBounds: bounds,
         maxBoundsViscosity: 1.0,
@@ -52,28 +52,25 @@
 
       currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
 
+      // 1. To dopasowuje obraz do ekranu i ustala initialZoomLevel
       map.fitBounds(bounds);
       initialZoomLevel = map.getZoom();
 
-      // **NOWE WIERZE**
-      // Ustawia minimalny zoom na poziom początkowy, blokując oddalanie
-      map.setMinZoom(initialZoomLevel);
-      map.setZoom(initialZoomLevel); 
-      // **KONIEC NOWYCH WIERSZY**
+      // 2. NOWY WIERSZ: Ustawia minimalny zoom na poprawnie obliczony początkowy poziom
+      map.setMinZoom(initialZoomLevel); 
 
       map.on('zoomend', function () {
         const currentZoom = map.getZoom();
 
-        // Warunek zmiany obrazu na powiększony (opóźniony do 1.0)
-        // Obraz zmieni się dopiero, gdy zoom będzie o 1.0 wyższy niż początkowy.
-        if (currentZoom >= initialZoomLevel + 0.7 && !isZoomedIn) {
+        // Zmiana obrazu na powiększony (przykład z progiem 1.0)
+        if (currentZoom >= initialZoomLevel + 1.0 && !isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
           isZoomedIn = true;
           console.log('Obraz został zmieniony na powiększony.');
         }
 
-        // Warunek powrotu do początkowego obrazu
+        // Powrót do początkowego obrazu
         if (currentZoom <= initialZoomLevel && isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
@@ -85,6 +82,7 @@
   </script>
 </body>
 </html>
+
 
 
 
