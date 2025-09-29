@@ -43,7 +43,8 @@
 
       map = L.map("map", {
         crs: L.CRS.Simple,
-        // Usuwamy stąd minZoom: -5, bo ustawimy go później
+        // Zostawiamy bezpieczny, bardzo niski minZoom, aby fitBounds działało poprawnie
+        minZoom: -5, 
         maxZoom: 5,
         maxBounds: bounds,
         maxBoundsViscosity: 1.0,
@@ -52,17 +53,21 @@
 
       currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
 
-      // 1. To dopasowuje obraz do ekranu i ustala initialZoomLevel
       map.fitBounds(bounds);
       initialZoomLevel = map.getZoom();
 
-      // 2. NOWY WIERSZ: Ustawia minimalny zoom na poprawnie obliczony początkowy poziom
-      map.setMinZoom(initialZoomLevel); 
+      // **NAPRAWA BLOKOWANIA ODDALANIA:**
+      // Zamiast ustawiać minZoom, używamy maxBounds, aby blokować ruch poza granice.
+      // Aby zablokować oddalanie, wymuszamy ustawienie minZoom na obliczony initialZoomLevel.
+      // Wykonujemy tę operację po małym opóźnieniu (timeout) - to kluczowe dla CRS.Simple!
+      setTimeout(() => {
+          map.setMinZoom(initialZoomLevel);
+      }, 50);
 
       map.on('zoomend', function () {
         const currentZoom = map.getZoom();
 
-        // Zmiana obrazu na powiększony (przykład z progiem 1.0)
+        // Używamy progu 1.0, aby opóźnić zmianę obrazu
         if (currentZoom >= initialZoomLevel + 1.0 && !isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(imgZoomed.src, bounds).addTo(map);
@@ -70,7 +75,7 @@
           console.log('Obraz został zmieniony na powiększony.');
         }
 
-        // Powrót do początkowego obrazu
+        // Warunek powrotu do początkowego obrazu
         if (currentZoom <= initialZoomLevel && isZoomedIn) {
           map.removeLayer(currentImageOverlay);
           currentImageOverlay = L.imageOverlay(img.src, bounds).addTo(map);
@@ -82,6 +87,7 @@
   </script>
 </body>
 </html>
+
 
 
 
